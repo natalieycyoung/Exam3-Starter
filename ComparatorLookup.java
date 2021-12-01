@@ -101,10 +101,15 @@ class ComparatorLookupTable<K, V> implements Comparator<K>
 	 */
 	void update(K key, V value)
 	{
-		this.find(key);
-
-		int index = this.keys.indexOf(key);
-		this.values.set(index, value);
+		if (this.keys.contains(key))
+		{
+			int index = this.keys.indexOf(key);
+			this.values.set(index, value);
+		}
+		else
+		{
+			throw new NoSuchElementException();
+		}
 	}
 }
 
@@ -124,14 +129,33 @@ class ComparatorLookupTableExamples
 		List<Integer> nums = new ArrayList<>(Arrays.asList(1, 2, 3));
 		ComparatorLookupTable<String, Integer> ctl = new ComparatorLookupTable<>(strs, nums, new StringComparator());
 		
-		t.checkExpect(ctl.contains("a"), true);
+		t.checkExpect(ctl.contains("a"), true);		// test 1
+		t.checkExpect(ctl.contains("d"), false);
+		t.checkExpect(ctl.contains(" "), false);
+		t.checkExpect(ctl.contains("A"), false);
+	
+		t.checkExpect(ctl.find("b"), 2);
+
 		ctl.update("a", 9);
-		t.checkExpect(ctl.find("a"), 9);
+		t.checkExpect(ctl.find("a"), 9);			// test 5
+		t.checkException(new NoSuchElementException(), ctl, "update", "B", 15);
+
 		ctl.add("z", 10);
 		t.checkExpect(ctl.keys, Arrays.asList("a", "b", "c", "z"));
 		t.checkExpect(ctl.values, Arrays.asList(9, 2, 3, 10));
-		
+	
+		ctl.add(" ", 0);
+		t.checkExpect(ctl.find(" "), 0);
+		ctl.update(" ", 1);
+		t.checkExpect(ctl.find(" "), 1);
+		t.checkExpect(ctl.keys, Arrays.asList("a", "b", "c", "z", " "));
+		t.checkExpect(ctl.values, Arrays.asList(9, 2, 3, 10, 1));
+		t.checkException(new IllegalArgumentException(), ctl, "add", " ", 98);
+
 		t.checkException(new IllegalArgumentException(), ctl, "add", "z", 5);
 		t.checkException(new NoSuchElementException(), ctl, "find", "y");
+		t.checkException(new NoSuchElementException(), ctl, "find", "h");
+
+
 	}
 }
