@@ -88,7 +88,7 @@ class ComparatorLookupTable<K, V> implements Comparator<K>
 		}
 		else
 		{
-			throw new NoSuchElementException();
+			throw new NoSuchElementException();	// this line on stack
 		}
 	}
 
@@ -128,7 +128,9 @@ class ComparatorLookupTableExamples
 		List<String> strs = new ArrayList<>(Arrays.asList("a", "b", "c"));
 		List<Integer> nums = new ArrayList<>(Arrays.asList(1, 2, 3));
 		ComparatorLookupTable<String, Integer> ctl = new ComparatorLookupTable<>(strs, nums, new StringComparator());
-		
+
+		ctl.find(" ");	// this line on stack
+
 		t.checkExpect(ctl.contains("a"), true);		// test 1
 		t.checkExpect(ctl.contains("d"), false);
 		t.checkExpect(ctl.contains(" "), false);
@@ -155,7 +157,10 @@ class ComparatorLookupTableExamples
 		t.checkException(new IllegalArgumentException(), ctl, "add", "z", 5);
 		t.checkException(new NoSuchElementException(), ctl, "find", "y");
 		t.checkException(new NoSuchElementException(), ctl, "find", "h");
-
-
 	}
 }
+/*
+  class             method        this reference      other variables
+  ComparatorLookupTableExamples  testUpdate    <ignore>            strs = :2; nums = :2; ctl= :19
+  ComparatorLookupTable           find       :1                  keys; values; comp
+  */
